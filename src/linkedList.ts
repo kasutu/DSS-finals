@@ -1,9 +1,10 @@
 export abstract class List<T> {
-  public abstract add(item: T): void;
+  public abstract makeCircular(): LinkedListNode<T> | undefined;
   public abstract unshift(item: T): void;
+  public abstract add(item: T): void;
   public abstract get(index: number): T | undefined;
-  public abstract getNode(index: number): LinkedListNode<T> | undefined;
   public abstract get length(): number;
+  public abstract get headNode(): LinkedListNode<T> | undefined;
 }
 
 class LinkedListNode<T> {
@@ -15,53 +16,50 @@ class LinkedList<T> extends List<T> {
   tail?: LinkedListNode<T>;
   private count = 0;
 
+  public makeCircular(): LinkedListNode<T> | undefined {
+    /**
+     * @steps
+     *
+     *1) make a headCopy
+     *2) find the last node then
+     *3) lastNode.next = headCopy
+     */
+
+    // init a current (important) node is the head
+    let current = this.head;
+
+    // traverse and find the last node
+    while (current?.next !== undefined) {
+      current = current?.next;
+    }
+
+    // set the last node's next if it is undefined
+    current!.next = this.head;
+    return this.head;
+  }
+
   public unshift(item: T): void {
     // unshift implementation
     let temp = new LinkedListNode<T>(item);
-    let last = this.getNode(this.count);
 
-    console.log('HEAD: ', this.head);
-    console.log('LAST: ', last);
+    // all the data
+    let oldHead = this.head;
 
-    if (!this.head) {
-      this.head = temp;
-      this.tail = this.head;
-      this.tail.next = this.head; // circularly implementation
-    } else {
-      // all the data
-      let oldHead = this.head;
-      // console.log('OLD HEAD NEXT: ', oldHead);
-
-      this.head = new LinkedListNode<T>(item);
-      this.head.next = oldHead;
-      // console.log('NEW HEAD: ', this.head);
-    }
-
-    // for (let i = 0; i < list.length; i++) {
-    //   console.log(list.get(i));
-    // }
+    temp.next = oldHead;
+    this.head = temp;
 
     this.count++;
   }
 
   public add(item: T): void {
     let temp = new LinkedListNode<T>(item);
-    let last = this.getNode(this.length);
-
-    console.log('HEAD: ', this.head);
-    console.log('LAST: ', last);
 
     if (!this.head) {
       this.head = temp;
       this.tail = this.head;
-      this.tail.next = this.head; // circularly implementation
-      // console.log('tail next: ', this.tail.next);
-      // console.log('head: ', this.head);
     } else {
       this.tail!.next = temp;
       this.tail = this.tail!.next;
-      // console.log('tail next: ', this.tail.next);
-      // console.log('head: ', this.head);
     }
 
     this.count++;
@@ -71,50 +69,45 @@ class LinkedList<T> extends List<T> {
     let current = this.head;
     let hops = 0;
 
-    while (current !== null && hops !== index) {
+    while (current !== undefined && hops !== index) {
       current = current?.next;
       hops++;
     }
+
+    console.log('HOPS: ', hops, 'LAST NODE: ', current?.data);
 
     return current?.data;
   }
 
-  public getNode(index: number): LinkedListNode<T> | undefined {
-    let current = this.head;
-    let hops = 0;
-
-    while (current !== null && hops !== index) {
-      current = current?.next;
-      hops++;
-    }
-
-    return current;
-  }
-
   public get length() {
     return this.count;
+  }
+
+  public get headNode() {
+    return this.head;
   }
 }
 
 function test() {
   let list: List<string> = new LinkedList();
 
-  list.add('iron man');
+  list.add('1st item');
+  list.add('2nd item');
+  list.add('3rd item');
+  // list.add('4th item');
+  // list.add('5th item add() ending');
 
-  list.add('tail1');
-  list.add('tail2');
-  list.add('tail3');
-  list.add('endgame');
-
-  list.unshift('unshifting here boi');
-  list.unshift('heheh');
-  list.unshift('lodii');
-  list.unshift('bwahahahhahaha');
-  list.unshift('ez');
+  // list.unshift('6th unshifting here boi');
+  // list.unshift('7th unshift');
+  // list.unshift('8th unshift');
+  // list.unshift('9th unshift');
+  // list.unshift('10th unshift');
 
   for (let i = 0; i < list.length; i++) {
-    console.log(list.get(i));
+    list.get(i);
   }
+
+  console.log(list.makeCircular());
 }
 
 test();
